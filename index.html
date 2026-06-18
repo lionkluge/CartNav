@@ -103,15 +103,13 @@
                 <i class="fa-solid fa-chevron-left text-sm"></i>
             </button>
             
-            <!-- HEADER UPDATE -->
-<div id="brand-logo" class="flex items-center gap-3">
-    <!-- Hier wird das Logo aus Screenshot 2026-06-17 113657.png eingebunden -->
-    <img src="Screenshot 2026-06-17 113657.png" alt="KartNav Logo" class="w-10 h-10 object-contain brightness-0 invert">
-    <div class="flex flex-col">
-        <span class="text-xl font-black tracking-widest text-white leading-none">CARTNAV</span>
-        <span class="text-[8px] font-bold tracking-[0.2em] text-blue-400 uppercase">Smart Shopping</span>
-    </div>
-</div>
+            <div id="brand-logo" class="flex items-center gap-2.5">
+                <div class="relative w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-[0_0_20px_rgba(59,130,246,0.4)]">
+                    <i class="fa-solid fa-layer-group text-sm"></i>
+                    <div class="absolute inset-0 border border-white/20 rounded-xl"></div>
+                </div>
+                <span class="text-2xl font-black tracking-tight text-white">Kart<span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Nav</span></span>
+            </div>
         </div>
         <div id="top-badge" class="px-3.5 py-1.5 glass-panel rounded-full text-[10px] font-bold tracking-widest text-blue-200 uppercase">
             Hub
@@ -611,43 +609,26 @@
             }
         }
     </script>
-</body><!DOCTYPE html>
-<html>
-<head>
-    <title>KartNav App</title>
-    <style>
-        /* Hier kommt das Design (CSS) rein */
-        body { font-family: sans-serif; background-color: #f4f4f4; padding: 20px; }
-        /* Deine anderen Styles... */
-    </style>
-</head>
-<body>
-
-    <h1>KartNav</h1>
-    <p>Hier sind deine Einkaufs-Produkte...</p>
-
-    <button onclick="showFeedback()" style="background-color: #ff6600; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">
-        Einkauf beenden
-    </button>
-
-    <div id="feedback-box" style="display:none; margin-top: 20px; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #fff; width: 300px;">
-        <h3>Einkauf abgeschlossen!</h3>
-        <p>Wie war deine Erfahrung mit KartNav?</p>
-        <input type="number" id="rating" min="1" max="5" placeholder="Sterne (1-5)" style="width: 100%; margin-bottom: 10px;">
-        <textarea id="comment" placeholder="Was können wir besser machen?" style="width: 100%; height: 60px; margin-bottom: 10px;"></textarea>
-        <button onclick="sendFeedback()" style="background-color: #333; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">Abschicken</button>
-    </div>
-
-    <script>
-        /* HIER KOMMT DIE LOGIK (JavaScript) HIN */
-        function showFeedback() {
-            document.getElementById('feedback-box').style.display = 'block';
-        }
-
-        function sendFeedback() {
-            alert("Danke für dein Feedback! Wir arbeiten daran, KartNav für dich besser zu machen.");
-            document.getElementById('feedback-box').style.display = 'none';
-        }
-    </script>
 </body>
+    <button onclick="openFeedbackModal()" 
+        class="w-full py-4 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-xl border border-slate-600 transition-all shadow-lg">
+    Einkauf beenden
+</button>
+</body<
+  <div id="feedback-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 shadow-2xl animate-in fade-in zoom-in duration-200">
+        <h3 class="text-xl font-bold text-white mb-2">Einkauf beenden?</h3>
+        <p class="text-slate-400 text-sm mb-6">Wie zufrieden warst du mit der App?</p>
+        
+        <textarea id="feedback-text" 
+                  class="w-full bg-[#0f172a] text-white p-4 rounded-xl border border-slate-600 mb-6 focus:border-blue-500 outline-none" 
+                  rows="3" 
+                  placeholder="Dein Feedback..."></textarea>
+        
+        <div class="flex gap-3">
+            <button onclick="closeFeedbackModal()" class="flex-1 py-3 bg-slate-800 text-slate-300 font-bold rounded-xl hover:bg-slate-700">Abbrechen</button>
+            <button onclick="submitFeedback()" class="flex-1 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700">Absenden</button>
+        </div>
+    </div>
+</div>
 </html>
