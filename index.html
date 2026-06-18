@@ -611,5 +611,43 @@
             }
         }
     </script>
+</body><!DOCTYPE html>
+<html>
+<head>
+    <title>KartNav App</title>
+    <style>
+        /* Hier kommt das Design (CSS) rein */
+        body { font-family: sans-serif; background-color: #f4f4f4; padding: 20px; }
+        /* Deine anderen Styles... */
+    </style>
+</head>
+<body>
+
+    <h1>KartNav</h1>
+    <p>Hier sind deine Einkaufs-Produkte...</p>
+
+    <button onclick="showFeedback()" style="background-color: #ff6600; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">
+        Einkauf beenden
+    </button>
+
+    <div id="feedback-box" style="display:none; margin-top: 20px; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #fff; width: 300px;">
+        <h3>Einkauf abgeschlossen!</h3>
+        <p>Wie war deine Erfahrung mit KartNav?</p>
+        <input type="number" id="rating" min="1" max="5" placeholder="Sterne (1-5)" style="width: 100%; margin-bottom: 10px;">
+        <textarea id="comment" placeholder="Was können wir besser machen?" style="width: 100%; height: 60px; margin-bottom: 10px;"></textarea>
+        <button onclick="sendFeedback()" style="background-color: #333; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">Abschicken</button>
+    </div>
+
+    <script>
+        /* HIER KOMMT DIE LOGIK (JavaScript) HIN */
+        function showFeedback() {
+            document.getElementById('feedback-box').style.display = 'block';
+        }
+
+        function sendFeedback() {
+            alert("Danke für dein Feedback! Wir arbeiten daran, KartNav für dich besser zu machen.");
+            document.getElementById('feedback-box').style.display = 'none';
+        }
+    </script>
 </body>
 </html>
