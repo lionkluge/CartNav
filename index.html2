@@ -1,262 +1,147 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SmartFridge - Haltbarkeitsmanager</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/lucide@latest"></script>
-<script src="https://unpkg.com/html5-qrcode"></script>
-<style>
-        .status-gruen { background-color: #22c55e; color: white; }
-        .status-gelb { background-color: #eab308; color: black; }
-        .status-rot { background-color: #ef4444; color: white; }
-        .status-weinrot { background-color: #7f1d1d; color: white; }
-</style>
-</head>
-<body class="bg-gray-100 font-sans pb-24">
- 
-    <header class="bg-blue-600 text-white p-4 text-center shadow-md sticky top-0 z-10">
-<h1 class="text-xl font-bold flex justify-center items-center gap-2">
-<i data-lucide="refrigerator"></i> SmartFridge
-</h1>
-</header>
- 
-    <main class="max-w-md mx-auto p-4">
- 
-        <section id="page-fridge" class="space-y-4">
-<h2 class="text-lg font-semibold text-gray-700">Mein Kühlschrank</h2>
-<div id="fridge-empty" class="text-center py-8 text-gray-500 hidden">
-<i data-lucide="salad" class="mx-auto w-12 h-12 mb-2 text-gray-400"></i>
-                Dein Kühlschrank ist leer. Scanne Produkte, um sie hinzuzufügen!
-</div>
-<div id="food-list" class="space-y-2">
-</div>
-</section>
- 
-        <section id="page-scan" class="space-y-4 hidden">
-<h2 class="text-lg font-semibold text-gray-700">Produkt scannen</h2>
-<div class="bg-white p-4 rounded-xl shadow">
-<div id="reader" class="w-full bg-black rounded-lg overflow-hidden"></div>
-<p class="text-xs text-center text-gray-500 mt-2">Halte einen Barcode in die Kamera.</p>
-<button onclick="simulateScan()" class="w-full mt-4 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 rounded-lg text-sm">
-                    Barcode-Scan simulieren (Demo)
-</button>
-</div>
-</section>
- 
-        <section id="page-recipes" class="space-y-4 hidden">
-<h2 class="text-lg font-semibold text-gray-700">Kochideen für deine Reste</h2>
-<div id="recipe-list" class="space-y-3">
-</div>
-</section>
- 
-    </main>
- 
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg flex justify-around py-3 z-10">
-<button onclick="switchPage('fridge')" id="nav-fridge" class="flex flex-col items-center text-blue-600">
-<i data-lucide="refrigerator" class="w-6 h-6"></i>
-<span class="text-xs mt-1 font-medium">Kühlschrank</span>
-</button>
-<button onclick="switchPage('scan')" id="nav-scan" class="flex flex-col items-center text-gray-400 hover:text-blue-500">
-<i data-lucide="scan-barcode" class="w-6 h-6"></i>
-<span class="text-xs mt-1 font-medium">Scannen</span>
-</button>
-<button onclick="switchPage('recipes')" id="nav-recipes" class="flex flex-col items-center text-gray-400 hover:text-blue-500">
-<i data-lucide="chef-hat" class="w-6 h-6"></i>
-<span class="text-xs mt-1 font-medium">Rezepte</span>
-</button>
-</nav>
- 
-    <script>
-        // Beispiel-Datenbank für Lebensmittel (LocalStorage wird genutzt, damit es speichert)
-        let inventory = JSON.parse(localStorage.getItem('fridge_inventory')) || [
-            { id: 1, name: "Milch", daysLeft: 10 },
-            { id: 2, name: "Frischkäse", daysLeft: 6 },
-            { id: 3, name: "Tomaten", daysLeft: 3 },
-            { id: 4, name: "Hähnchenbrust", daysLeft: 1 }
-        ];
- 
-        let html5QrcodeScanner = null;
- 
-        // Funktion zur Bestimmung der Farbe nach deinen Regeln
-        function getStatusClass(days) {
-            if (days >= 9) return 'status-gruen';
-            if (days >= 4 && days <= 8) return 'status-gelb';
-            if (days >= 2 && days <= 3) return 'status-rot';
-            if (days <= 1) return 'status-weinrot';
-            return 'bg-gray-400 text-white';
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartFridge - Haltbarkeitsmanager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        :root {
+            --status-green: #22c55e;
+            --status-yellow: #eab308;
+            --status-red: #ef4444;
+            --status-dark-red: #7f1d1d;
         }
- 
-        // Kühlschrank-Inhalt anzeigen
+        .status-gruen { background-color: var(--status-green); color: white; }
+        .status-gelb { background-color: var(--status-yellow); color: black; }
+        .status-rot { background-color: var(--status-red); color: white; }
+        .status-weinrot { background-color: var(--status-dark-red); color: white; }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans pb-24">
+
+    <header class="bg-blue-600 text-white p-4 text-center shadow-lg sticky top-0 z-20">
+        <h1 class="text-xl font-bold flex justify-center items-center gap-2">
+            <i data-lucide="refrigerator"></i> SmartFridge
+        </h1>
+    </header>
+
+    <main class="max-w-md mx-auto p-4">
+        <section id="page-fridge" class="page-section space-y-4">
+            <h2 class="text-lg font-semibold text-gray-700">Mein Kühlschrank</h2>
+            <div id="fridge-empty" class="hidden text-center py-12 text-gray-400">
+                <i data-lucide="salad" class="mx-auto w-16 h-16 mb-2"></i>
+                <p>Dein Kühlschrank ist leer.<br>Scanne Produkte, um sie hinzuzufügen.</p>
+            </div>
+            <div id="food-list" class="space-y-3"></div>
+        </section>
+
+        <section id="page-scan" class="page-section hidden space-y-4">
+            <h2 class="text-lg font-semibold text-gray-700">Produkt scannen</h2>
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
+                <div id="reader" class="w-full rounded-lg overflow-hidden"></div>
+                <button onclick="simulateScan()" class="w-full mt-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 rounded-xl transition">
+                    Barcode simulieren (Demo)
+                </button>
+            </div>
+        </section>
+
+        <section id="page-recipes" class="page-section hidden space-y-4">
+            <h2 class="text-lg font-semibold text-gray-700">Ideen für deine Reste</h2>
+            <div id="recipe-list" class="space-y-3"></div>
+        </section>
+    </main>
+
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-3 flex justify-between z-30">
+        <button onclick="switchPage('fridge')" class="nav-btn text-blue-600" data-page="fridge"><i data-lucide="refrigerator"></i><span class="text-[10px] block">Kühlschrank</span></button>
+        <button onclick="switchPage('scan')" class="nav-btn text-gray-400" data-page="scan"><i data-lucide="scan-barcode"></i><span class="text-[10px] block">Scannen</span></button>
+        <button onclick="switchPage('recipes')" class="nav-btn text-gray-400" data-page="recipes"><i data-lucide="chef-hat"></i><span class="text-[10px] block">Rezepte</span></button>
+    </nav>
+
+    <script>
+        let inventory = JSON.parse(localStorage.getItem('fridge_inventory')) || [];
+        let html5QrcodeScanner = null;
+
+        const getStatusClass = (days) => {
+            if (days >= 9) return 'status-gruen';
+            if (days >= 4) return 'status-gelb';
+            if (days >= 2) return 'status-rot';
+            return 'status-weinrot';
+        };
+
         function renderFridge() {
             const listContainer = document.getElementById('food-list');
             const emptyState = document.getElementById('fridge-empty');
+            
             listContainer.innerHTML = '';
- 
+            
             if (inventory.length === 0) {
                 emptyState.classList.remove('hidden');
-                return;
             } else {
                 emptyState.classList.add('hidden');
+                inventory.sort((a, b) => a.daysLeft - b.daysLeft).forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = `p-4 rounded-xl shadow-sm flex justify-between items-center ${getStatusClass(item.daysLeft)}`;
+                    card.innerHTML = `
+                        <div>
+                            <h3 class="font-bold">${item.name}</h3>
+                            <p class="text-xs opacity-80">${item.daysLeft} Tage haltbar</p>
+                        </div>
+                        <button onclick="deleteItem(${item.id})" class="p-2 hover:bg-black/10 rounded-full transition"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                    `;
+                    listContainer.appendChild(card);
+                });
             }
- 
-            // Sortieren: Kürzeste Haltbarkeit zuerst
-            inventory.sort((a, b) => a.daysLeft - b.daysLeft);
- 
-            inventory.forEach(item => {
-                const colorClass = getStatusClass(item.daysLeft);
-                const card = document.createElement('div');
-                card.className = `p-4 rounded-xl shadow flex justify-between items-center ${colorClass} transition-all`;
-                card.innerHTML = `
-<div>
-<h3 class="font-bold text-lg">${item.name}</h3>
-<p class="text-sm opacity-90">Noch ${item.daysLeft} Tage genießbar</p>
-</div>
-<button onclick="deleteItem(${item.id})" class="p-1 bg-black/10 hover:bg-black/20 rounded">
-<i data-lucide="trash-2" class="w-5 h-5"></i>
-</button>
-                `;
-                listContainer.appendChild(card);
-            });
             lucide.createIcons();
             updateRecipes();
         }
- 
-        // Produkt löschen
-        function deleteItem(id) {
-            inventory = inventory.filter(item => item.id !== id);
-            saveData();
-            renderFridge();
-        }
- 
-        // Daten im Browser speichern
-        function saveData() {
-            localStorage.setItem('fridge_inventory', JSON.stringify(inventory));
-        }
- 
-        // Seiten wechseln
+
         function switchPage(pageId) {
-            document.getElementById('page-fridge').classList.add('hidden');
-            document.getElementById('page-scan').classList.add('hidden');
-            document.getElementById('page-recipes').classList.add('hidden');
-            document.getElementById('nav-fridge').className = 'flex flex-col items-center text-gray-400';
-            document.getElementById('nav-scan').className = 'flex flex-col items-center text-gray-400';
-            document.getElementById('nav-recipes').className = 'flex flex-col items-center text-gray-400';
- 
+            document.querySelectorAll('.page-section').forEach(s => s.classList.add('hidden'));
             document.getElementById(`page-${pageId}`).classList.remove('hidden');
-            document.getElementById(`nav-${pageId}`).className = 'flex flex-col items-center text-blue-600';
- 
-            if (pageId === 'scan') {
-                startScanner();
-            } else {
-                stopScanner();
-            }
+            
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.toggle('text-blue-600', b.dataset.page === pageId);
+                b.classList.toggle('text-gray-400', b.dataset.page !== pageId);
+            });
+
+            pageId === 'scan' ? startScanner() : stopScanner();
         }
- 
-        // Scanner starten
+
         function startScanner() {
             if (!html5QrcodeScanner) {
-                html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
-                html5QrcodeScanner.render(onScanSuccess);
+                html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 200 });
+                html5QrcodeScanner.render((txt) => { onScanSuccess(txt); });
             }
         }
- 
+
         function stopScanner() {
             if (html5QrcodeScanner) {
-                html5QrcodeScanner.clear().then(() => {
-                    html5QrcodeScanner = null;
-                }).catch(err => console.log(err));
+                html5QrcodeScanner.clear().then(() => html5QrcodeScanner = null);
             }
         }
- 
-        // Wenn ein Barcode erfolgreich gescannt wurde
-        function onScanSuccess(decodedText, decodedResult) {
-            // Da wir keine echte Barcode-Datenbank haben, erstellen wir ein zufälliges Produkt
-            const randomProducts = ["Pasta", "Joghurt", "Salat", "Eier", "Käse", "Apfelmus"];
-            const randomName = randomProducts[Math.floor(Math.random() * randomProducts.length)];
-            const randomDays = Math.floor(Math.random() * 12) + 1; // 1 bis 12 Tage
- 
-            addProduct(randomName, randomDays);
-            alert(`Gescannter Barcode (${decodedText}): ${randomName} hinzugefügt! (Haltbar: ${randomDays} Tage)`);
+
+        function onScanSuccess(decodedText) {
+            const items = ["Milch", "Pasta", "Joghurt", "Salat", "Hähnchen"];
+            addProduct(items[Math.floor(Math.random() * items.length)], Math.floor(Math.random() * 10) + 1);
             switchPage('fridge');
         }
- 
-        // Demo-Scanner-Knopf Simulation
-        function simulateScan() {
-            onScanSuccess("4000123456789", null);
-        }
- 
-        // Produkt zum Kühlschrank hinzufügen
+
         function addProduct(name, days) {
-            const newItem = {
-                id: Date.now(),
-                name: name,
-                daysLeft: parseInt(days)
-            };
-            inventory.push(newItem);
-            saveData();
+            inventory.push({ id: Date.now(), name, daysLeft: days });
+            localStorage.setItem('fridge_inventory', JSON.stringify(inventory));
             renderFridge();
         }
- 
-        // Kochideen basierend auf ablaufenden Lebensmitteln generieren
-        function updateRecipes() {
-            const recipeContainer = document.getElementById('recipe-list');
-            recipeContainer.innerHTML = '';
- 
-            // Finde Lebensmittel, die dringend weg müssen (Rot oder Weinrot = unter 4 Tage)
-            const urgentItems = inventory.filter(item => item.daysLeft <= 3).map(item => item.name);
- 
-            if (urgentItems.length === 0) {
-                recipeContainer.innerHTML = `
-<div class="bg-white p-4 rounded-xl text-center text-gray-500 shadow">
-                        Aktuell keine dringenden Lebensmittel. Du kannst kochen, worauf du Lust hast!
-</div>
-                `;
-                return;
-            }
- 
-            // Einfache Rezept-Vorschlagslogik
-            const recipeDatabase = [
-                { title: "Reste-Pfanne Deluxe", ingredients: ["Tomaten", "Hähnchenbrust", "Pasta"], desc: "Schneide alles klein und brate es mit etwas Öl in der Pfanne an." },
-                { title: "Schneller Auflauf", ingredients: ["Käse", "Milch", "Pasta"], desc: "Verrühre die Zutaten und backe sie bei 180°C im Ofen goldbraun." },
-                { title: "Frische-Smoothie / Suppe", ingredients: ["Tomaten", "Salat"], desc: "Püriere die Zutaten mit Gewürzen zu einer schnellen Mahlzeit." },
-                { title: "Gourmet-Frühstück", ingredients: ["Eier", "Frischkäse", "Milch"], desc: "Mische alles für ein fluffiges Rührei oder Omelett." }
-            ];
- 
-            let suggestionsFound = 0;
- 
-            recipeDatabase.forEach(recipe => {
-                // Prüfen, ob eines der dringenden Lebensmittel im Rezept vorkommt
-                const match = recipe.ingredients.some(ing => urgentItems.includes(ing));
- 
-                if (match) {
-                    suggestionsFound++;
-                    const card = document.createElement('div');
-                    card.className = "bg-white p-4 rounded-xl shadow border-l-4 border-orange-500 space-y-2";
-                    card.innerHTML = `
-<h3 class="font-bold text-gray-800 text-lg">${recipe.title}</h3>
-<p class="text-xs text-gray-500 font-semibold">Nutzt: ${recipe.ingredients.join(', ')}</p>
-<p class="text-sm text-gray-600">${recipe.desc}</p>
-                    `;
-                    recipeContainer.appendChild(card);
-                }
-            });
- 
-            if (suggestionsFound === 0) {
-                recipeContainer.innerHTML = `
-<div class="bg-white p-4 rounded-xl text-center text-gray-500 shadow">
-                        Nutze deine ablaufenden Zutaten (<strong>${urgentItems.join(', ')}</strong>) einfach für ein kreatives Resteessen nach eigenem Rezept!
-</div>
-                `;
-            }
-        }
- 
-        // App starten
-        window.onload = () => {
-            lucide.createIcons();
+
+        function deleteItem(id) {
+            inventory = inventory.filter(i => i.id !== id);
+            localStorage.setItem('fridge_inventory', JSON.stringify(inventory));
             renderFridge();
-        };
-</script>
+        }
+
+        window.onload = () => { renderFridge(); };
+    </script>
 </body>
 </html>
